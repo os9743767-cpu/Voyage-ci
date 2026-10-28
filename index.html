@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Voyage CI</title>
+  <style>
+    body { font-family: Arial; background-color: #f2f4f3; margin: 0; padding-bottom: 30px; }
+    header { background: linear-gradient(135deg, #0b6b2e, #f58220); color: white; padding: 25px 20px; }
+    header h1 { margin: 0; font-size: 28px; }
+    header p { margin: 5px 0 0; opacity: 0.9; }
+    #recherche { width: calc(100% - 30px); margin: 15px; padding: 12px; font-size: 16px; border: 2px solid #0b6b2e; border-radius: 25px; box-sizing: border-box; }
+    .trajet { background-color: white; margin: 15px; padding: 15px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); border-left: 6px solid #f58220; }
+    .trajet h2 { margin: 0 0 10px; font-size: 20px; color: #222; }
+    .ligne { display: flex; align-items: center; margin-bottom: 8px; }
+    .logo { width: 36px; height: 36px; border-radius: 50%; color: white; font-weight: bold; display: flex; align-items: center; justify-content: center; margin-right: 10px; }
+    .compagnie { color: #555; }
+    .prix { color: #f58220; font-weight: bold; font-size: 20px; margin: 5px 0 10px; }
+    button { background-color: #0b6b2e; color: white; border: none; padding: 12px 22px; border-radius: 8px; font-size: 16px; }
+    #formulaire { display: none; background-color: white; margin: 15px; padding: 15px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    #formulaire input { display: block; width: 100%; box-sizing: border-box; padding: 12px; margin: 10px 0; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; }
+    .info { font-size: 13px; color: #666; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🚌 Voyage CI</h1>
+    <p>Trouvez votre trajet en Côte d'Ivoire</p>
+  </header>
+
+  <input id="recherche" placeholder="🔍 Chercher une ville..." oninput="filtrer()">
+
+  <div class="trajet">
+    <h2>Abidjan → Bouaké</h2>
+    <div class="ligne"><div class="logo" style="background:#0b6b2e">A</div><span class="compagnie">Compagnie A</span></div>
+    <p class="prix">5000 FCFA</p>
+    <button onclick="reserver('Abidjan → Bouaké')">Réserver</button>
+  </div>
+
+  <div class="trajet">
+    <h2>Abidjan → Grand-Lahou</h2>
+    <div class="ligne"><div class="logo" style="background:#c0392b">B</div><span class="compagnie">Compagnie B</span></div>
+    <p class="prix">1500 FCFA</p>
+    <button onclick="reserver('Abidjan → Grand-Lahou')">Réserver</button>
+  </div>
+
+  <div class="trajet">
+    <h2>Abidjan → Yamoussoukro</h2>
+    <div class="ligne"><div class="logo" style="background:#2980b9">C</div><span class="compagnie">Compagnie C</span></div>
+    <p class="prix">4000 FCFA</p>
+    <button onclick="reserver('Abidjan → Yamoussoukro')">Réserver</button>
+  </div>
+
+  <div class="trajet">
+    <h2>Abidjan → Korhogo</h2>
+    <div class="ligne"><div class="logo" style="background:#8e44ad">D</div><span class="compagnie">Compagnie D</span></div>
+    <p class="prix">9000 FCFA</p>
+    <button onclick="reserver('Abidjan → Korhogo')">Réserver</button>
+  </div>
+
+  <div class="trajet">
+    <h2>Abidjan → San-Pédro</h2>
+    <div class="ligne"><div class="logo" style="background:#16a085">E</div><span class="compagnie">Compagnie E</span></div>
+    <p class="prix">6000 FCFA</p>
+    <button onclick="reserver('Abidjan → San-Pédro')">Réserver</button>
+  </div>
+
+  <div class="trajet">
+    <h2>Abidjan → Man</h2>
+    <div class="ligne"><div class="logo" style="background:#d35400">F</div><span class="compagnie">Compagnie F</span></div>
+    <p class="prix">8000 FCFA</p>
+    <button onclick="reserver('Abidjan → Man')">Réserver</button>
+  </div>
+
+  <div class="trajet">
+    <h2>Abidjan → Daloa</h2>
+    <div class="ligne"><div class="logo" style="background:#34495e">G</div><span class="compagnie">Compagnie G</span></div>
+    <p class="prix">6500 FCFA</p>
+    <button onclick="reserver('Abidjan → Daloa')">Réserver</button>
+  </div>
+
+  <div id="formulaire">
+    <h2>Réservation</h2>
+    <p>Trajet : <b id="trajetChoisi"></b></p>
+    <input id="nom" placeholder="Nom">
+    <input id="prenom" placeholder="Prénom">
+    <input id="tel" type="tel" placeholder="Numéro de téléphone">
+    <p class="info">Vos informations servent uniquement à vous rappeler pour confirmer votre réservation.</p>
+    <button id="btnConfirmer" onclick="confirmer()">Confirmer</button>
+  </div>
+
+  <script>
+    var FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSea5Qnd446SDr-lGlYcwWWgfRhX-tW3AnbmJziYEDUDRXGkbw/formResponse";
+
+    function filtrer() {
+      var texte = document.getElementById("recherche").value.toLowerCase();
+      var cartes = document.querySelectorAll(".trajet");
+      for (var i = 0; i < cartes.length; i++) {
+        if (cartes[i].innerText.toLowerCase().includes(texte)) {
+          cartes[i].style.display = "block";
+        } else {
+          cartes[i].style.display = "none";
+        }
+      }
+    }
+
+    function reserver(trajet) {
+      var f = document.getElementById("formulaire");
+      f.style.display = "block";
+      document.getElementById("trajetChoisi").innerText = trajet;
+      f.scrollIntoView({ behavior: "smooth" });
+    }
+
+    function confirmer() {
+      var nom = document.getElementById("nom").value.trim();
+      var prenom = document.getElementById("prenom").value.trim();
+      var tel = document.getElementById("tel").value.trim();
+      var trajet = document.getElementById("trajetChoisi").innerText;
+
+      if (nom === "" || prenom === "" || tel === "") {
+        alert("Merci de remplir le nom, le prénom et le numéro.");
+        return;
+      }
+
+      var bouton = document.getElementById("btnConfirmer");
+      bouton.disabled = true;
+      bouton.innerText = "Envoi en cours...";
+
+      var donnees = new URLSearchParams();
+      donnees.append("entry.981761660", nom);
+      donnees.append("entry.1919768339", prenom);
+      donnees.append("entry.472087445", tel);
+      donnees.append("entry.2106524578", trajet);
+
+      fetch(FORM_URL, { method: "POST", mode: "no-cors", body: donnees })
+        .then(function () {
+          alert("Merci " + prenom + " " + nom + " ! Votre demande pour " + trajet + " est envoyée. Nous vous appelons au " + tel + ".");
+          document.getElementById("nom").value = "";
+          document.getElementById("prenom").value = "";
+          document.getElementById("tel").value = "";
+          document.getElementById("formulaire").style.display = "none";
+          bouton.disabled = false;
+          bouton.innerText = "Confirmer";
+        })
+        .catch(function () {
+          alert("Erreur d'envoi. Vérifiez votre connexion et réessayez.");
+          bouton.disabled = false;
+          bouton.innerText = "Confirmer";
+        });
+    }
+  </script>
+</body>
+</html>
